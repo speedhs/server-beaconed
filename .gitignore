@@ -1,0 +1,19 @@
+# Compiled Go binaries
+*.exe
+*.out
+*.app
+
+# Dependency directories
+/vendor/
+/go.sum
+
+# Compiled Object files, Static and Dynamic libs
+*.o
+*.a
+
+# Log files
+*.log
+
+# IDE/Editor specific files
+.idea/
+.vscode/
