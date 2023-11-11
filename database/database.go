@@ -9,8 +9,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// Connect opens a connection to the SQLite database
-var db *sql.DB
+
+var Dbi *sql.DB
 func Connect() (*sql.DB, error) {
 	// Open a connection to the database
 	db, err := sql.Open("sqlite3", "./database/data.sqlite")
@@ -44,14 +44,11 @@ func Connect() (*sql.DB, error) {
 		db.Close()
 		return nil, err
 	}
+	Dbi = db
 	return db, nil
 }
 
-// createTable creates the historical_prices table
-func GetDb() *sql.DB{
-	fmt.Println(db)
-	return db
-}
+
 func createTable(db *sql.DB) error {
 	createTableQuery := `
 	CREATE TABLE IF NOT EXISTS historical_prices (

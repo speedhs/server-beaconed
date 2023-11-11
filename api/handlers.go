@@ -12,6 +12,7 @@ type HelloResponse struct {
 }
 
 func HelloHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(database.Dbi)
     response := HelloResponse{
         Message: "Hello, World!",
     }
@@ -37,13 +38,7 @@ type HistoricalPrice struct {
 }
 
 func GetHistoricalData(w http.ResponseWriter, r *http.Request) {
-fmt.Println("Trying connection")
-var db,err= database.Connect()
-if err != nil {
-	http.Error(w, "Error Connecting", http.StatusInternalServerError)
-	return
-}
-fmt.Println("Completed connection")
+	db := database.Dbi
 	symbol := r.URL.Query().Get("symbol")
 	fromDate := r.URL.Query().Get("from_date")
 	toDate := r.URL.Query().Get("to_date")
@@ -87,13 +82,7 @@ fmt.Println("Completed connection")
 }
 
 func FirstTenEntriesHandler(w http.ResponseWriter, r *http.Request) {
-	var db,err= database.Connect()
-	if err != nil {
-		http.Error(w, "Error Connecting", http.StatusInternalServerError)
-		return
-	}
-
-	fmt.Println("Printing...",db)
+	db := database.Dbi
 	query := "SELECT id,date,price,symbol FROM historical_prices LIMIT 10"
 	rows, err := db.Query(query)
 	if err != nil {
