@@ -1,0 +1,7 @@
+//historical_prices.sqlite
+CREATE TABLE historical_prices (
+    id INTEGER,
+    date TEXT,
+    price REAL,
+    symbol TEXT
+);
