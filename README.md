@@ -3,8 +3,8 @@
 Getting Started
 Clone the repository:
 
-git clone https://github.com/speedhs/server-backend.git
-cd your-project-backend
+git clone https://github.com/speedhs/server-beaconed.git
+cd server-backend
 go run main.go
 
 The server will be available at http://localhost:8080.
