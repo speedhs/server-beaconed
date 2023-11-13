@@ -3,7 +3,7 @@
 Getting Started
 Clone the repository:
 
-git clone https://github.com/your-username/your-project-backend.git
+git clone https://github.com/speedhs/server-backend.git
 cd your-project-backend
 go run main.go
 
@@ -12,7 +12,7 @@ The server will be available at http://localhost:8080.
 Database Setup
 SQLite Database:
 
-The application uses an SQLite database located at ./database/data.sqlite. Ensure it's present before running.
+The application uses an SQLite database located at ./database/data.sqlite.
 
 Import Data:
 
