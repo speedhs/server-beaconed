@@ -12,24 +12,21 @@ import (
 
 var Dbi *sql.DB
 func Connect() (*sql.DB, error) {
-	// Open a connection to the database
 	db, err := sql.Open("sqlite3", "./database/data.sqlite")
 	if err != nil {
 		fmt.Println("Error opening database:", err)
 		return nil, err
 	}
 
-	// Ensure the connection is established
 	err = db.Ping()
 	if err != nil {
 		fmt.Println("Error pinging database:", err)
-		db.Close() // Close the connection if Ping fails
+		db.Close() 
 		return nil, err
 	}
 
 	fmt.Println("Database connection established successfully")
 
-	// Create the historical_prices table if it doesn't exist
 	err = createTable(db)
 	if err != nil {
 		fmt.Println("Error creating table:", err)
@@ -37,7 +34,6 @@ func Connect() (*sql.DB, error) {
 		return nil, err
 	}
 
-	// Import data from the CSV file
 	err = importData(db)
 	if err != nil {
 		fmt.Println("Error importing data:", err)
@@ -63,9 +59,7 @@ func createTable(db *sql.DB) error {
 	return err
 }
 
-// importData imports data from a CSV file into the historical_prices table
 func importData(db *sql.DB) error {
-	// Open the CSV file
 	if printTotalEntries(db)>0{
 		fmt.Println("Data already present")
 		return nil
@@ -77,23 +71,19 @@ func importData(db *sql.DB) error {
 	}
 	defer file.Close()
 
-	// Create a CSV reader
 	reader := csv.NewReader(file)
 
-	// Read all records from the CSV file
 	records, err := reader.ReadAll()
 	if err != nil {
 		return err
 	}
 
-	// Prepare the SQL statement for insertion
 	insertStatement, err := db.Prepare("INSERT INTO historical_prices (id,date, price, symbol) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		return err
 	}
 	defer insertStatement.Close()
 
-	// Iterate over the records and insert into the database
 	for _, record := range records {
 		_, err := insertStatement.Exec(record[0], record[1], record[2], record[3])
 		if err != nil {
@@ -115,3 +105,4 @@ func printTotalEntries(db *sql.DB)  int {
 
 	return totalEntries
 }
+
