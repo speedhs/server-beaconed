@@ -14,5 +14,8 @@ func SetupRoutes() {
     router.HandleFunc("/api/firstten",FirstTenEntriesHandler).Methods("GET")
     router.HandleFunc("/api/login",Login).Methods("GET")
     router.HandleFunc("/api/register",Register).Methods("GET")
+    router.HandleFunc("/api/holdings", GetHoldingsHandler).Methods("GET")
+	router.HandleFunc("/api/profile", GetProfileHandler).Methods("GET")
+	router.HandleFunc("/api/place_order", PlaceOrderHandler).Methods("POST")
     http.Handle("/", router)
 }
