@@ -132,66 +132,51 @@ type User struct {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Attemp login")
-    if r.Method != http.MethodGet {
-        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-        return
-    }
+	db := database.Dbi
+	email := r.URL.Query().Get("email")
+	password := r.URL.Query().Get("password")
 
-    db := database.Dbi
+	query := "SELECT user_id FROM users WHERE email = ? AND password_hash = ?"
+	row := db.QueryRow(query, email, password)
+	var user User
+	err := row.Scan(&user.ID)
 
-    var credentials struct {
-        Email    string `json:"email"`
-        Password string `json:"password"`
-    }
-
-    err := json.NewDecoder(r.Body).Decode(&credentials)
-    if err != nil {
-        http.Error(w, "Error decoding JSON", http.StatusBadRequest)
-        return
-    }
-
-	fmt.Println("exec query")
-    query := "SELECT user_id FROM users WHERE email = ? AND password_hash = ?"
-    row := db.QueryRow(query, credentials.Email, credentials.Password)
-    var user User
-    err = row.Scan(&user.ID)
-
-    if err != nil {
+	if err != nil {
         http.Error(w, "User not found.", http.StatusUnauthorized)
-        fmt.Println("No user")
-        return
-    }
-
-    token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-        Subject:   credentials.Email,
-        ExpiresAt: 0,
-    })
-
-    tokenString, err := token.SignedString([]byte("truebeaconbyharsh"))
-    if err != nil {
-        http.Error(w, "Error generating token", http.StatusInternalServerError)
-        return
-    }
-
-    response := LoginResponse{
-        Message: "Login successful",
-        Email:   credentials.Email,
-        Token:   tokenString,
-    }
-
-    jsonResponse, err := json.Marshal(response)
-    if err != nil {
-        http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
-        return
-    }
-
-    w.Header().Set("Content-Type", "application/json")
-    w.Header().Set("Access-Control-Allow-Origin", "*")
-    w.Header().Set("Access-Control-Allow-Methods", "GET,POST, OPTIONS")
-    w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-    w.Write(jsonResponse)
+		fmt.Println("No user")
+    	return
 }
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+		Subject:   email,
+		ExpiresAt: 0, 
+	})
+
+	tokenString, err := token.SignedString([]byte("truebeaconbyharsh"))
+	if err != nil {
+		http.Error(w, "Error generating token", http.StatusInternalServerError)
+		return
+	}
+
+	response := LoginResponse{
+		Message:  "Login successful",
+		Email: email,
+		Token:    tokenString,
+	}
+
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*") // Allow requests from any origin
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Write(jsonResponse)
+}
+
 
 type RegisterUser struct {
 	UserID       string `json:"user_id"`
@@ -202,43 +187,47 @@ type RegisterUser struct {
 	Password     string `json:"password_hash"`
 }
 
-// func RegistrationHandler(w http.ResponseWriter, r *http.Request) {
-// 	stmt, err := db.Prepare("INSERT INTO users (user_id, user_type, email, user_name, broker,password_hash) VALUES (?, ?, ?, ?, ?, ?)")
-// 	if err != nil {
-// 		return err
-// 	}
-// 	UserId:= r.URL.Query().Get("userid")
-// 	UserType := r.URL.Query().Get("usertype")
-// 	Email := r.URL.Query().Get("email")
-// 	UserName := r.URL.Query().Get("username")
-// 	Broker := r.URL.Query().Get("broker")
-// 	Password := r.URL.Query().Get("password")
+type RegisterResponse struct{
+	Message		string `json:"message"`
+}
+func Register(w http.ResponseWriter, r *http.Request) {
+	db := database.Dbi
+	stmt, err := db.Prepare("INSERT INTO users (user_id, user_type, email, user_name, broker,password_hash) VALUES (?, ?, ?, ?, ?, ?)")
+	if err != nil {
+		return 
+	}
+	UserId:= r.URL.Query().Get("userid")
+	UserType := r.URL.Query().Get("usertype")
+	Email := r.URL.Query().Get("email")
+	UserName := r.URL.Query().Get("username")
+	Broker := r.URL.Query().Get("broker")
+	Password := r.URL.Query().Get("password")
 	
-// 	_, err = stmt.Exec(UserId, UserType, Email, UserName, Broker, Password)
-// 	if err != nil {
-// 		return err
-// 	}
+	_, err = stmt.Exec(UserId, UserType, Email, UserName, Broker, Password)
+	if err != nil {
+		return 
+	}
 
-// 	if err != nil {
-// 		http.Error(w, "Error inserting user data", http.StatusInternalServerError)
-// 		return
-// 	}
+	if err != nil {
+		http.Error(w, "Error inserting user data", http.StatusInternalServerError)
+		return
+	}
 
 
-// 	response := RegisterResponse{
-// 		Message: "Registration successful",
-// 	}
+	response := RegisterResponse{
+		Message: "Registration successful",
+	}
 
-// 	jsonResponse, err := json.Marshal(response)
-// 	if err != nil {
-// 		http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
-// 		return
-// 	}
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
+		return
+	}
 
-// 	w.Header().Set("Content-Type", "application/json")
-// 	w.Header().Set("Access-Control-Allow-Origin", "*")
-// 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-// 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-// 	w.Write(jsonResponse)
-// }
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET,POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Write(jsonResponse)
+}
 

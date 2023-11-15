@@ -13,6 +13,6 @@ func SetupRoutes() {
     router.HandleFunc("/api/historical-data", GetHistoricalData).Methods("GET")
     router.HandleFunc("/api/firstten",FirstTenEntriesHandler).Methods("GET")
     router.HandleFunc("/api/login",Login).Methods("GET")
-
+    router.HandleFunc("/api/register",Register).Methods("GET")
     http.Handle("/", router)
 }
